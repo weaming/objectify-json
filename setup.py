@@ -26,7 +26,7 @@ gh_repo = "https://github.com/weaming/{}".format(name)
 
 setup(
     name=name,  # Required
-    version="0.1.0",  # Required
+    version="0.1.1",  # Required
     # This is a one-line description or tagline of what your project does.
     description="Make accessing JSON like data more convenient.",  # Required
     long_description=long_description,  # Optional

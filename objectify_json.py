@@ -51,4 +51,4 @@ class ObjectifyJSON:
 
 def get_data_by_path(data, path):
     _o = ObjectifyJSON(data)
-    return eval("_o{}".format(path))
+    return eval("_o{}".format(path))._data
