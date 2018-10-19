@@ -10,6 +10,7 @@ class ObjectifyJSON:
         e.g. self.a.b[3].c
         """
         self._data = data
+        self._init()
 
     @property
     def type(self):
@@ -47,6 +48,19 @@ class ObjectifyJSON:
 
     def __str__(self):
         return str(self._data)
+
+    def __iter__(self):
+        """ iter on the real data """
+        return self._data.__iter__()
+
+    def _init(self):
+        if self.type == DICT:
+
+            def items():
+                for k, v in self._data.items():
+                    yield ObjectifyJSON(k), ObjectifyJSON(v)
+
+            self.items = items
 
 
 def get_data_by_path(data, path):
