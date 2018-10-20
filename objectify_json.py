@@ -80,9 +80,14 @@ def get_data_by_path(data, path):
 class Formatter:
     context = ObjectifyJSON(None)
 
-    def format_value(self, value: str):
-        if isinstance(str):
-            return value.format(self=self.context)
+    def format_value(self, value):
+        if isinstance(value, str):
+            try:
+                return value.format(self=self.context)
+            except KeyError:
+                print(value)
+                print(self.context)
+                raise
         return value
 
     def parse_dict(self, data: dict):
