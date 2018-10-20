@@ -81,7 +81,9 @@ class Formatter:
     context = ObjectifyJSON(None)
 
     def format_value(self, value: str):
-        return value.format(self=self.context)
+        if isinstance(str):
+            return value.format(self=self.context)
+        return value
 
     def parse_dict(self, data: dict):
         for k, v in data.copy().items():
@@ -89,10 +91,10 @@ class Formatter:
                 v = self.parse_dict(v)
             elif isinstance(v, list):
                 v = self.parse_list(v)
-            elif isinstance(v, (int, float, bool)):
-                v = v
             elif isinstance(v, str):
                 v = self.format_value(v)
+            else:
+                v = v
 
             data[self.format_value(k)] = v
         return data
@@ -103,10 +105,10 @@ class Formatter:
                 v = self.parse_dict(v)
             elif isinstance(v, list):
                 v = self.parse_list(v)
-            elif isinstance(v, (int, float, bool)):
-                v = v
             elif isinstance(v, str):
                 v = self.format_value(v)
+            else:
+                v = v
 
             data[i] = v
         return data
