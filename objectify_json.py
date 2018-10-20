@@ -59,6 +59,9 @@ class ObjectifyJSON:
             yield ObjectifyJSON(rv)
             rv = real_next()
 
+    def __bool__(self):
+        return self._data.__bool()
+
     def _init(self):
         if self.type == DICT:
 
