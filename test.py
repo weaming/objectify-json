@@ -31,3 +31,7 @@ print(o.data[0].request.query.a)
 print(o.data[1].id)
 
 print(get_data_by_path(data, ".data[0].id"))
+
+print('-----')
+for x in o:
+    print(repr(x))

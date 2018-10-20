@@ -51,7 +51,13 @@ class ObjectifyJSON:
 
     def __iter__(self):
         """ iter on the real data """
-        return self._data.__iter__()
+        iterator = self._data.__iter__()
+        real_next = iterator.__next__
+
+        rv = real_next()
+        while rv:
+            yield ObjectifyJSON(rv)
+            rv = real_next()
 
     def _init(self):
         if self.type == DICT:
