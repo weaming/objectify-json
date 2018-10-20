@@ -26,7 +26,8 @@ o = ObjectifyJSON(data)
 
 print(o.login.username)
 print(o.data[0].id)
-print(o.data[0].id.len)
+l = o.data[0].id.len
+print(l, bool(l))
 print(o.data[0].request.query.a)
 print(o.data[1].id)
 

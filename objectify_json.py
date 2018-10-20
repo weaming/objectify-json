@@ -60,7 +60,7 @@ class ObjectifyJSON:
             rv = real_next()
 
     def __bool__(self):
-        return self._data.__bool()
+        return bool(self._data)
 
     def _init(self):
         if self.type == DICT:
