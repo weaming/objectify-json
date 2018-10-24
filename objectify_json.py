@@ -1,6 +1,7 @@
 import sys
 import argparse
 import json
+from functools import reduce
 
 LIST = "LIST"
 DICT = "DICT"
@@ -30,18 +31,12 @@ class ObjectifyJSON:
             if item in self._data:
                 return ObjectifyJSON(self._data[item])
 
-            if item == "keys":
+            if item == "fn_keys":
                 return lambda: ObjectifyJSON(list(self._data.keys()))
-
-            if item == "values":
+            elif item == "fn_values":
                 return lambda: ObjectifyJSON(list(self._data.values()))
-
-        elif self.type == LIST:
-            if self._data:
-                if item == "first":
-                    return self._data[0]
-                elif item == "last":
-                    return self._data[-1]
+            elif item == "fn_items":
+                return lambda: ObjectifyJSON(list(self._data.items()))
 
         if item == "fn_map":
 
@@ -49,6 +44,23 @@ class ObjectifyJSON:
                 return ObjectifyJSON(list(map(fn, self._data)))
 
             return fn_map
+
+        elif item == "fn_reduce":
+
+            def fn_reduce(fn, initializer=None):
+                if initializer is None:
+                    return ObjectifyJSON(reduce(fn, self._data))
+                else:
+                    return ObjectifyJSON(reduce(fn, self._data, initializer))
+
+            return fn_reduce
+
+        elif item == "fn_lambda":
+
+            def fn_lambda(fn, unwrap=True):
+                return ObjectifyJSON(fn(self._data if unwrap else self))
+
+            return fn_lambda
 
         # get the magic methods on data
         if item.startswith("__") and item.endswith("__"):
@@ -97,7 +109,10 @@ class ObjectifyJSON:
 
 
 def get_data_by_path(data, path):
-    _o = ObjectifyJSON(data)
+    if isinstance(data, ObjectifyJSON):
+        _o = data
+    else:
+        _o = ObjectifyJSON(data)
     return eval("_o{}".format(path))._data
 
 
@@ -156,22 +171,6 @@ class Formatter:
         raise NotImplementedError(str(type(data)))
 
 
-def eval_expression(data, expression: str):
-    if not isinstance(data, ObjectifyJSON):
-        data = ObjectifyJSON(data)
-
-    name = "data"
-    if expression.startswith("["):
-        expression = "{}{}".format(name, expression)
-    else:
-        expression = "{}.{}".format(name, expression)
-    try:
-        return eval(expression)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("expression", default="")
@@ -191,7 +190,11 @@ def main():
         print(f"IO error: {e}")
         sys.exit(1)
 
-    result = eval_expression(data, args.expression)
+    try:
+        result = get_data_by_path(data, args.expression)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
 
     with open(args.output, "w") as out:
-        out.write(json.dumps(result._data, ensure_ascii=False, indent=args.indent))
+        out.write(json.dumps(result, ensure_ascii=False, indent=args.indent))

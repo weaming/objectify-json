@@ -13,21 +13,28 @@ data = {
 
 o = ObjectifyJSON(data)
 
+# existed properties
 print(o.login.username)
 print(o.data[0].id)
-_len = o.data[0].id.len
-print(_len, bool(_len))
 print(o.data[0].request.query.a)
-print(o.data[1].id)
 
-print(get_data_by_path(data, ".data[0].id"))
+print("-----")
+v = o.data[0].id.some_property  # non-exist property
+print(v, bool(v))
+
+print("-----")
+print(get_data_by_path(data, ".data[0].id"))  # get data by path
 
 print("-----")
 for x in o:
-    print(repr(x))
+    print(repr(x))  # repr
 
 print("-----")
-print(o.data.first)
-print(o.data.last)
-print(o.data.last.keys())
-print(o.data.last.values())
+print(o.data[0].fn_keys())  # keys
+print(o.data[0].fn_values())  # values
+
+print("-----")
+print(o.data[0].fn_map(lambda x: str(x)))  # map
+print(o.data[0].fn_reduce(lambda a, b: a + b))  # reduce
+
+print(o.data[0].fn_lambda(lambda x: len(str(x))))  # lambda
