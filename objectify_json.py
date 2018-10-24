@@ -40,16 +40,16 @@ class ObjectifyJSON:
 
         if item == "fn_map":
 
-            def fn_map(fn):
-                return ObjectifyJSON(list(map(fn, self._data)))
+            def fn_map(fn, unwrap=True):
+                return ObjectifyJSON(list(map(fn, self._data if unwrap else self)))
 
             return fn_map
 
         elif item == "fn_reduce":
 
-            def fn_reduce(fn, initializer=None):
+            def fn_reduce(fn, initializer=None, unwrap=True):
                 if initializer is None:
-                    return ObjectifyJSON(reduce(fn, self._data))
+                    return ObjectifyJSON(reduce(fn, self._data if unwrap else self))
                 else:
                     return ObjectifyJSON(reduce(fn, self._data, initializer))
 
@@ -61,6 +61,13 @@ class ObjectifyJSON:
                 return ObjectifyJSON(fn(self._data if unwrap else self))
 
             return fn_lambda
+
+        elif item == "fn_filter":
+
+            def fn_filter(fn, unwrap=True):
+                return ObjectifyJSON(list(filter(fn, self._data if unwrap else self)))
+
+            return fn_filter
 
         # get the magic methods on data
         if item.startswith("__") and item.endswith("__"):

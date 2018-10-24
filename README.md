@@ -10,7 +10,7 @@ Make accessing JSON like data more convenient.
 * Always return `ObjectifyJSON(None)` if doesn't exist.
 * Iterate on dict or list via `for` loop. The iteration elements' type are `ObjectifyJSON` too!
 * Iterate on dict via `.fn_keys()`, `.fn_values()` or `.fn_items()`.
-* Process data in a collection via `.fn_map()` or `.fn_reduce()`.
+* Process data in a collection via `.fn_map()`, `.fn_reduce()` or `.fn_filter()`.
 * An CLI tool named `object` to process JSON data.
 
 ## Install
