@@ -1,3 +1,7 @@
+import sys
+import argparse
+import json
+
 LIST = "LIST"
 DICT = "DICT"
 BASIC = "BASIC"
@@ -38,6 +42,13 @@ class ObjectifyJSON:
                     return self._data[0]
                 elif item == "last":
                     return self._data[-1]
+
+        if item == "fn_map":
+
+            def fn_map(fn):
+                return ObjectifyJSON(list(map(fn, self._data)))
+
+            return fn_map
 
         # get the magic methods on data
         if item.startswith("__") and item.endswith("__"):
@@ -143,3 +154,44 @@ class Formatter:
         if isinstance(data, str):
             return self.format_value(data)
         raise NotImplementedError(str(type(data)))
+
+
+def eval_expression(data, expression: str):
+    if not isinstance(data, ObjectifyJSON):
+        data = ObjectifyJSON(data)
+
+    name = "data"
+    if expression.startswith("["):
+        expression = "{}{}".format(name, expression)
+    else:
+        expression = "{}.{}".format(name, expression)
+    try:
+        return eval(expression)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("expression", default="")
+    parser.add_argument(
+        "-i", "--input", default="/dev/stdin", help="the file path of input"
+    )
+    parser.add_argument(
+        "-o", "--output", default="/dev/stdout", help="the file path of output"
+    )
+    parser.add_argument("--indent", type=int, help="the indent of json output")
+    args = parser.parse_args()
+
+    try:
+        with open(args.input) as f:
+            data = json.loads(f.read())
+    except Exception as e:
+        print(f"IO error: {e}")
+        sys.exit(1)
+
+    result = eval_expression(data, args.expression)
+
+    with open(args.output, "w") as out:
+        out.write(json.dumps(result._data, ensure_ascii=False, indent=args.indent))

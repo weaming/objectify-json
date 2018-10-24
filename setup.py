@@ -26,7 +26,7 @@ gh_repo = "https://github.com/weaming/{}".format(name)
 
 setup(
     name=name,  # Required
-    version="0.1.9",  # Required
+    version="0.2.0",  # Required
     # This is a one-line description or tagline of what your project does.
     description="Make accessing JSON like data more convenient.",  # Required
     long_description=long_description,  # Optional
@@ -36,7 +36,11 @@ setup(
     # single python file
     py_modules=["objectify_json"],
     packages=find_packages(exclude=["contrib", "docs", "tests"]),  # Required
-    entry_points={},  # Optional
+    entry_points={
+        "console_scripts": [
+            "object=objectify_json:main"
+        ]
+    },  # Optional
     url=gh_repo,  # Optional
     author="weaming",  # Optional
     author_email="garden.yuen@gmail.com",  # Optional
