@@ -22,9 +22,22 @@ class ObjectifyJSON:
             return BASIC
 
     def __getattr__(self, item):
-        if self.type == DICT and item in self._data:
+        if self.type == DICT:
             if item in self._data:
                 return ObjectifyJSON(self._data[item])
+
+            if item == "keys":
+                return lambda: ObjectifyJSON(list(self._data.keys()))
+
+            if item == "values":
+                return lambda: ObjectifyJSON(list(self._data.values()))
+
+        elif self.type == LIST:
+            if self._data:
+                if item == "first":
+                    return self._data[0]
+                elif item == "last":
+                    return self._data[-1]
 
         # get the magic methods on data
         if item.startswith("__") and item.endswith("__"):
