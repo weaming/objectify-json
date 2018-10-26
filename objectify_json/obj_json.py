@@ -13,7 +13,6 @@ class ObjectifyJSON:
         e.g. self.a.b[3].c
         """
         self._data = data
-        self._init()
 
     @property
     def type(self):
@@ -102,15 +101,6 @@ class ObjectifyJSON:
 
     def __bool__(self):
         return bool(self._data)
-
-    def _init(self):
-        if self.type == DICT:
-
-            def items():
-                for k, v in self._data.items():
-                    yield ObjectifyJSON(k), ObjectifyJSON(v)
-
-            self.items = items
 
 
 def get_data_by_path(data, path):
