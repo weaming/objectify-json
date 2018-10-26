@@ -1,7 +1,5 @@
-import sys
-import argparse
-import json
 from functools import reduce
+from .pure_eval import eval_with_context
 
 LIST = "LIST"
 DICT = "DICT"
@@ -117,10 +115,10 @@ class ObjectifyJSON:
 
 def get_data_by_path(data, path):
     if isinstance(data, ObjectifyJSON):
-        _o = data
+        o = data
     else:
-        _o = ObjectifyJSON(data)
-    return eval("_o{}".format(path))._data
+        o = ObjectifyJSON(data)
+    return eval_with_context("o{}".format(path), context={"o": o})._data
 
 
 class Formatter:
@@ -176,32 +174,3 @@ class Formatter:
         if isinstance(data, str):
             return self.format_value(data)
         raise NotImplementedError(str(type(data)))
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("expression", default="")
-    parser.add_argument(
-        "-i", "--input", default="/dev/stdin", help="the file path of input"
-    )
-    parser.add_argument(
-        "-o", "--output", default="/dev/stdout", help="the file path of output"
-    )
-    parser.add_argument("--indent", type=int, help="the indent of json output")
-    args = parser.parse_args()
-
-    try:
-        with open(args.input) as f:
-            data = json.loads(f.read())
-    except Exception as e:
-        print(f"IO error: {e}")
-        sys.exit(1)
-
-    try:
-        result = get_data_by_path(data, args.expression)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
-
-    with open(args.output, "w") as out:
-        out.write(json.dumps(result, ensure_ascii=False, indent=args.indent))

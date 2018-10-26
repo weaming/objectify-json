@@ -26,19 +26,16 @@ gh_repo = "https://github.com/weaming/{}".format(name)
 
 setup(
     name=name,  # Required
-    version="0.2.1",  # Required
+    version="0.2.2",  # Required
     # This is a one-line description or tagline of what your project does.
     description="Make accessing JSON like data more convenient.",  # Required
     long_description=long_description,  # Optional
     long_description_content_type="text/markdown",  # Optional
     install_requires=install_requires,
-    # You can use `find_packages()` or the `py_modules` argument which expect a
-    # single python file
-    py_modules=["objectify_json"],
     packages=find_packages(exclude=["contrib", "docs", "tests"]),  # Required
     entry_points={
         "console_scripts": [
-            "object=objectify_json:main"
+            "object=objectify_json.__main__:main"
         ]
     },  # Optional
     url=gh_repo,  # Optional
