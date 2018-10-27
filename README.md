@@ -9,11 +9,12 @@ Make accessing JSON like data more convenient.
 * Use `x._data` to get the real data.
 * Always return `ObjectifyJSON(None)` if doesn't exist.
 * Batch process data
+    * Process data in a collection via `.fn_map()`, `.fn_reduce()` or `.fn_filter()`.
     * Iterate on dict or list via `for` loop. The iteration elements' type are `ObjectifyJSON` too!
     * Iterate on dict via `.fn_keys()`, `.fn_values()`, `.fn_items()`, or `fn_items_update()`.
-    * Process data in a collection via `.fn_map()`, `.fn_reduce()` or `.fn_filter()`.
+    * Sort list inplace via `fn_sort`.
     * The return values of lambda funtion will always be unwrapped to primitive types.
-    * The `fn_*` functions all accept `unwrap` keyword parameter to pass the primitive types to lambda.
+    * The `fn_*` functions all accept `unwrap` keyword flag to enable passing the primitive types to lambda. Default is False.
 * An CLI tool named `object` to process JSON data.
 
 ## Install
