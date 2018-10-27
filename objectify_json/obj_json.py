@@ -56,16 +56,25 @@ class ObjectifyJSON:
 
                 def fn_update(key, fn, unwrap=False):
                     new = fn(self._data[key] if unwrap else getattr(self, key))
-                    self._data[key] = fn_unwrap(new)
+                    self._data[key] = _unwrap(new)
                     return self
 
                 return fn_update
+            elif item == "fn_items_update":
+
+                def fn_items_update(fn, unwrap=False):
+                    for k, v in self._data.items():
+                        v = v if unwrap else ObjectifyJSON(v)
+                        self._data[k] = _unwrap(fn(k, v))
+                    return self
+
+                return fn_items_update
 
         if item == "fn_map":
 
             def fn_map(fn, unwrap=False):
                 rv = map(fn, self._data if unwrap else self)
-                rv = [fn_unwrap(x) for x in rv]
+                rv = [_unwrap(x) for x in rv]
                 return ObjectifyJSON(rv)
 
             return fn_map
@@ -75,9 +84,9 @@ class ObjectifyJSON:
             def fn_reduce(fn, initializer=None, unwrap=False):
                 data = self._data if unwrap else self
                 if initializer is None:
-                    return ObjectifyJSON(fn_unwrap(reduce(fn, data)))
+                    return ObjectifyJSON(_unwrap(reduce(fn, data)))
                 else:
-                    return ObjectifyJSON(fn_unwrap(reduce(fn, data, initializer)))
+                    return ObjectifyJSON(_unwrap(reduce(fn, data, initializer)))
 
             return fn_reduce
 
@@ -85,7 +94,7 @@ class ObjectifyJSON:
 
             def fn_lambda(fn, unwrap=False):
                 rv = fn(self._data if unwrap else self)
-                return ObjectifyJSON(fn_unwrap(rv))
+                return ObjectifyJSON(_unwrap(rv))
 
             return fn_lambda
 
@@ -93,7 +102,7 @@ class ObjectifyJSON:
 
             def fn_filter(fn, unwrap=False):
                 rv = filter(fn, self._data if unwrap else self)
-                rv = [fn_unwrap(x) for x in rv]
+                rv = [_unwrap(x) for x in rv]
                 return ObjectifyJSON(rv)
 
             return fn_filter
@@ -143,13 +152,18 @@ def get_data_by_path(data, path):
     return eval_with_context("o{}".format(path), context={"o": o})._data
 
 
-def fn_unwrap(data):
+def _unwrap(data):
     if isinstance(data, ObjectifyJSON):
-        return data._data
+        data = data._data
+
+    if isinstance(data, list):
+        return [_unwrap(x) for x in data]
+    if isinstance(data, tuple):
+        return tuple(_unwrap(x) for x in data)
+    if isinstance(data, dict):
+        return {_unwrap(k): _unwrap(v) for k, v in data.items()}
     return data
 
 
-def fn_wrap(data):
-    if isinstance(data, ObjectifyJSON):
-        return data
-    return ObjectifyJSON(data)
+def _wrap(data):
+    return ObjectifyJSON(_unwrap(data))

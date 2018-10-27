@@ -10,7 +10,7 @@ Make accessing JSON like data more convenient.
 * Always return `ObjectifyJSON(None)` if doesn't exist.
 * Batch process data
     * Iterate on dict or list via `for` loop. The iteration elements' type are `ObjectifyJSON` too!
-    * Iterate on dict via `.fn_keys()`, `.fn_values()` or `.fn_items()`.
+    * Iterate on dict via `.fn_keys()`, `.fn_values()`, `.fn_items()`, or `fn_items_update()`.
     * Process data in a collection via `.fn_map()`, `.fn_reduce()` or `.fn_filter()`.
     * The return values of lambda funtion will always be unwrapped to primitive types.
     * The `fn_*` functions all accept `unwrap` keyword parameter to pass the primitive types to lambda.

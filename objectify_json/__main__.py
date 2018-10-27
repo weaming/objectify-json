@@ -2,7 +2,11 @@ import argparse
 import sys
 import os
 import json
+import traceback
 from . import ObjectifyJSON, get_data_by_path
+from .obj_json import _unwrap
+
+DEBUG = os.getenv("DEBUG")
 
 
 def main():
@@ -20,6 +24,12 @@ def main():
         default=os.getenv("JSON_INDENT"),
         help="the indent of json output",
     )
+    parser.add_argument(
+        "--safe",
+        default=False,
+        action="store_true",
+        help="dump json without default parameter",
+    )
     args = parser.parse_args()
 
     try:
@@ -32,8 +42,22 @@ def main():
     try:
         result = get_data_by_path(data, args.expression)
     except Exception as e:
-        print(e)
+        if DEBUG:
+            traceback.print_exc()
+        else:
+            print(e)
         sys.exit(1)
 
-    with open(args.output, "w") as out:
-        out.write(json.dumps(result, ensure_ascii=False, indent=args.indent))
+    try:
+        with open(args.output, "w") as out:
+            out.write(
+                json.dumps(
+                    result,
+                    ensure_ascii=False,
+                    indent=args.indent,
+                    default=None if args.safe else _unwrap,
+                )
+            )
+    except Exception as e:
+        print(result)
+        print(f"IOError: {e}")
