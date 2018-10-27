@@ -35,34 +35,66 @@ class ObjectifyJSON:
             elif item == "fn_items":
                 return lambda: ObjectifyJSON(list(self._data.items()))
 
+            # other special methods
+            elif item == "fn_include_keys":
+                return lambda keys: ObjectifyJSON(
+                    {k: v for k, v in self._data.items() if k in keys}
+                )
+            elif item == "fn_exclude_keys":
+                return lambda keys: ObjectifyJSON(
+                    {k: v for k, v in self._data.items() if k not in keys}
+                )
+            elif item == "fn_filter_by_value":
+                return lambda fn: ObjectifyJSON(
+                    {k: v for k, v in self._data.items() if fn(v)}
+                )
+            elif item == "fn_filter_by_kv":
+                return lambda fn: ObjectifyJSON(
+                    {k: v for k, v in self._data.items() if fn(k, v)}
+                )
+            elif item == "fn_update":
+
+                def fn_update(key, fn, unwrap=False):
+                    new = fn(self._data[key] if unwrap else getattr(self, key))
+                    self._data[key] = fn_unwrap(new)
+                    return self
+
+                return fn_update
+
         if item == "fn_map":
 
-            def fn_map(fn, unwrap=True):
-                return ObjectifyJSON(list(map(fn, self._data if unwrap else self)))
+            def fn_map(fn, unwrap=False):
+                rv = map(fn, self._data if unwrap else self)
+                rv = [fn_unwrap(x) for x in rv]
+                return ObjectifyJSON(rv)
 
             return fn_map
 
         elif item == "fn_reduce":
 
-            def fn_reduce(fn, initializer=None, unwrap=True):
+            def fn_reduce(fn, initializer=None, unwrap=False):
+                data = self._data if unwrap else self
                 if initializer is None:
-                    return ObjectifyJSON(reduce(fn, self._data if unwrap else self))
+                    return ObjectifyJSON(fn_unwrap(reduce(fn, data)))
                 else:
-                    return ObjectifyJSON(reduce(fn, self._data, initializer))
+                    return ObjectifyJSON(fn_unwrap(reduce(fn, data, initializer)))
 
             return fn_reduce
 
         elif item == "fn_lambda":
 
-            def fn_lambda(fn, unwrap=True):
-                return ObjectifyJSON(fn(self._data if unwrap else self))
+            def fn_lambda(fn, unwrap=False):
+                rv = fn(self._data if unwrap else self)
+                return ObjectifyJSON(fn_unwrap(rv))
 
             return fn_lambda
 
         elif item == "fn_filter":
 
-            def fn_filter(fn, unwrap=True):
-                return ObjectifyJSON(list(filter(fn, self._data if unwrap else self)))
+            def fn_filter(fn, unwrap=False):
+                rv = filter(fn, self._data if unwrap else self)
+                rv = [fn_unwrap(x) for x in rv]
+                return ObjectifyJSON(rv)
 
             return fn_filter
 
@@ -109,3 +141,15 @@ def get_data_by_path(data, path):
     else:
         o = ObjectifyJSON(data)
     return eval_with_context("o{}".format(path), context={"o": o})._data
+
+
+def fn_unwrap(data):
+    if isinstance(data, ObjectifyJSON):
+        return data._data
+    return data
+
+
+def fn_wrap(data):
+    if isinstance(data, ObjectifyJSON):
+        return data
+    return ObjectifyJSON(data)
