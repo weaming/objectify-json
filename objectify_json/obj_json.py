@@ -70,6 +70,15 @@ class ObjectifyJSON:
 
                 return fn_items_update
 
+        if self.type == LIST:
+            if item == "fn_sort":
+
+                def fn_sort(fn):
+                    self._data.sort(key=fn)
+                    return self
+
+                return fn_sort
+
         if item == "fn_map":
 
             def fn_map(fn, unwrap=False):
