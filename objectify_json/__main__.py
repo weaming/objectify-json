@@ -30,6 +30,12 @@ def main():
         action="store_true",
         help="dump json without default parameter",
     )
+    parser.add_argument(
+        "--transparent",
+        default=False,
+        action="store_true",
+        help="this program will not influence the output",
+    )
     args = parser.parse_args()
 
     try:
@@ -39,14 +45,15 @@ def main():
         print(f"IO error: {e}")
         sys.exit(1)
 
-    try:
-        result = get_data_by_path(data, args.expression)
-    except Exception as e:
-        if DEBUG:
-            traceback.print_exc()
-        else:
-            print(e)
-        sys.exit(1)
+    if not args.transparent:
+        try:
+            result = get_data_by_path(data, args.expression)
+        except Exception as e:
+            if DEBUG:
+                traceback.print_exc()
+            else:
+                print(e)
+            sys.exit(1)
 
     try:
         with open(args.output, "w") as out:

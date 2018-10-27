@@ -35,7 +35,7 @@ print(o.data[0].fn_values())  # values
 
 print("-----")
 print(o.data[0].fn_map(lambda x: str(x)))  # map
-print(o.data[0].fn_reduce(lambda a, b: a + b))  # reduce
+print(o.data[0].fn_reduce(lambda a, b: f'{a},{b}'))  # reduce
 
 print(o.data[0].fn_lambda(lambda x: len(str(x))))  # lambda
 print(o.data[0].fn_filter(lambda x: x == "id"))  # lambda
