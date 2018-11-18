@@ -147,7 +147,10 @@ class ObjectifyJSON:
         rv = real_next()
         while rv:
             yield ObjectifyJSON(rv)
-            rv = real_next()
+            try:
+                rv = real_next()
+            except StopIteration:
+                return
 
     def __bool__(self):
         return bool(self._data)
