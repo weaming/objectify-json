@@ -8,13 +8,6 @@ Make accessing JSON like data more convenient.
 * Always return `ObjectifyJSON` type, which holds the data with type of dict, list or any other primitive types.
 * Use `x._data` to get the real data.
 * Always return `ObjectifyJSON(None)` if doesn't exist.
-* Batch process data
-    * Process data in a collection via `.fn_map()`, `.fn_reduce()` or `.fn_filter()`.
-    * Iterate on dict or list via `for` loop. The iteration elements' type are `ObjectifyJSON` too!
-    * Iterate on dict via `.fn_keys()`, `.fn_values()`, `.fn_items()`, or `fn_items_update()`.
-    * Sort list inplace via `fn_sort`.
-    * The return values of lambda funtion will always be unwrapped to primitive types.
-    * The `fn_*` functions all accept `unwrap` keyword flag to enable passing the primitive types to lambda. Default is False.
 * An CLI tool named `object` to process JSON data.
 
 ## Install
@@ -27,7 +20,12 @@ pip3 install objectify-json
 
 See `test.py`
 
-## Functions
+## Functions to prpocess data in batch
+
+* The return value is always `ObjectifyJOSN` too!
+* The return value of lambda funtions will always be unwrapped to primitive types.
+* The `fn_*` functions all accept optional `unwrap` parameter to enable passing the underlying value as primitive types to lambda. Default is False.
+
 ### Common
 
 Following methods of `ObjectifyJOSN` accept optional `unwrap` to unwrap `ObjectifyJOSN` data to the underlying built-in data, the default value is `False`.
@@ -52,4 +50,4 @@ Following methods of `ObjectifyJOSN` accept optional `unwrap` to unwrap `Objecti
 
 ### List
 
-* `fn_sort`: sort the list, the lambda you give is passed as `key` argument to the `sort` method of list
+* `fn_sort`: sort the list in place, the lambda you give is passed as `key` argument to the `sort` method of list
