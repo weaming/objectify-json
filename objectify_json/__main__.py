@@ -3,13 +3,18 @@ import sys
 import os
 import json
 import traceback
-from . import ObjectifyJSON, get_data_by_path
+from . import ObjectifyJSON, get_data_by_path, version
 from .obj_json import _unwrap
 
 DEBUG = os.getenv("DEBUG")
 
 
 def main():
+    print_version = len(sys.argv) > 1 and sys.argv[1] in ["-v", "--version"]
+    if print_version:
+        print(version)
+        sys.exit(0)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("expression", default="")
     parser.add_argument(
@@ -36,6 +41,12 @@ def main():
         action="store_true",
         help="this program will do nothing to the data",
     )
+    parser.add_argument(
+        "--wrapped",
+        default=False,
+        action="store_true",
+        help="print the result ObjectifyJSON",
+    )
     args = parser.parse_args()
 
     try:
@@ -47,9 +58,10 @@ def main():
 
     if not args.transparent:
         try:
-            data = get_data_by_path(data, args.expression, retry=True)
+            obj = get_data_by_path(data, args.expression, retry=True, unwrap=False)
         except Exception as e:
             if DEBUG:
+                print(data)
                 traceback.print_exc()
             else:
                 print(e)
@@ -57,14 +69,17 @@ def main():
 
     try:
         with open(args.output, "w") as out:
-            out.write(
-                json.dumps(
-                    data,
-                    ensure_ascii=False,
-                    indent=args.indent,
-                    default=None if args.safe else _unwrap,
+            if args.wrapped:
+                out.write(repr(obj))
+            else:
+                out.write(
+                    json.dumps(
+                        obj._data,
+                        ensure_ascii=False,
+                        indent=args.indent,
+                        default=None if args.safe else _unwrap,
+                    )
                 )
-            )
     except Exception as e:
         print(data)
         print(f"IOError: {e}")
