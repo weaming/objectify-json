@@ -20,7 +20,7 @@ pip3 install objectify-json
 
 See `test.py`
 
-## Functions to prpocess data in batch
+## Functions to process data in batch
 
 * The return value is always `ObjectifyJOSN` too!
 * The return value of lambda funtions will always be unwrapped to primitive types.
