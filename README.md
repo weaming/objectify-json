@@ -50,4 +50,4 @@ Following methods of `ObjectifyJOSN` accept optional `unwrap` to unwrap `Objecti
 
 ### List
 
-* `fn_sort`: sort the list in place, the lambda you give is passed as `key` argument to the `sort` method of list
+* `fn_sort`: sort the list in place, the lambda you give will be passed as `key` argument to the `sort` method of list
