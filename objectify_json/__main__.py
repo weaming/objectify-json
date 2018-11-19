@@ -34,7 +34,7 @@ def main():
         "--transparent",
         default=False,
         action="store_true",
-        help="this program will not influence the output",
+        help="this program will do nothing to the data",
     )
     args = parser.parse_args()
 
@@ -47,7 +47,7 @@ def main():
 
     if not args.transparent:
         try:
-            result = get_data_by_path(data, args.expression)
+            data = get_data_by_path(data, args.expression, retry=True)
         except Exception as e:
             if DEBUG:
                 traceback.print_exc()
@@ -59,12 +59,12 @@ def main():
         with open(args.output, "w") as out:
             out.write(
                 json.dumps(
-                    result,
+                    data,
                     ensure_ascii=False,
                     indent=args.indent,
                     default=None if args.safe else _unwrap,
                 )
             )
     except Exception as e:
-        print(result)
+        print(data)
         print(f"IOError: {e}")

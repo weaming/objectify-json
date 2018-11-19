@@ -25,6 +25,7 @@ See `test.py`
 * The return value is always `ObjectifyJOSN` too!
 * The return value of lambda funtions will always be unwrapped to primitive types.
 * Most of the `fn_*` functions accept optional `unwrap` parameter to enable passing the underlying value as primitive types to lambda. Default is False.
+* When used in CLI tool, if it failed getting the property by property name, e.g. `map`, it will retry to get function with prefix `fn_` added to the name. This will simplify writting the CLI command.
 
 ### Common
 

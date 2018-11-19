@@ -13,6 +13,7 @@ class ObjectifyJSON:
         e.g. self.a.b[3].c
         """
         self._data = data
+        self.retry = False
 
     @property
     def type(self):
@@ -24,6 +25,20 @@ class ObjectifyJSON:
             return BASIC
 
     def __getattr__(self, item):
+        fn = self._get_fn(item)
+        if fn:
+            return fn
+
+        # get the magic methods on data
+        if item.startswith("__") and item.endswith("__"):
+            return getattr(self._data, item)
+
+        return ObjectifyJSON(None)
+
+    def _get_fn(self, item):
+        """
+        :return: function or None
+        """
         if self.type == DICT:
             if item in self._data:
                 return ObjectifyJSON(self._data[item])
@@ -150,11 +165,12 @@ class ObjectifyJSON:
 
             return fn_filter
 
-        # get the magic methods on data
-        if item.startswith("__") and item.endswith("__"):
-            return getattr(self._data, item)
-
-        return ObjectifyJSON(None)
+        else:
+            if not self.retry or item.startswith("fn_"):
+                return None
+            else:
+                # try to add `fn_` prefix
+                return self._get_fn(f"fn_{item}")
 
     def __getitem__(self, key):
         if self.type == DICT:
@@ -190,11 +206,12 @@ class ObjectifyJSON:
         return bool(self._data)
 
 
-def get_data_by_path(data, path):
+def get_data_by_path(data, path, retry=False):
     if isinstance(data, ObjectifyJSON):
         o = data
     else:
         o = ObjectifyJSON(data)
+    o.retry = retry
     return eval_with_context("o{}".format(path), context={"o": o})._data
 
 
