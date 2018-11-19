@@ -70,6 +70,16 @@ class ObjectifyJSON:
 
                 return fn_items_update
 
+            elif item == "fn_rename":
+
+                def fn_rename(mapping):
+                    for k, k1 in mapping:
+                        if k in self._data:
+                            self._data[k1] = self._data.pop(k)
+                    return self
+
+                return fn_rename
+
         if self.type == LIST:
             if item == "fn_sort":
 

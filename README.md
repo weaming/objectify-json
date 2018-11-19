@@ -46,6 +46,7 @@ Following methods of `ObjectifyJOSN` accept optional `unwrap` to unwrap `Objecti
 * `fn_filter_by_kv(fn)`: Filter dict. Filter by the lambda you give, which accept `key` and `value` two variables.
 * `fn_update(key, fn, unwrap=False)`: Update dict value. The lambda you give accept the origin value and return a new value.
 * `fn_items_update(fn, unwrap=False)`: Update dict value. The lambda you give accept `key` and `value` two variables and return a new value.
+* `fn_rename(mapping)`: Update dict key. The `mapping` is a list of two-elements list.
 
 ### List
 
