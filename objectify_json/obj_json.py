@@ -79,6 +79,30 @@ class ObjectifyJSON:
 
                 return fn_sort
 
+            elif item == "fn_dedup":
+
+                def fn_dedup(fn=None, all=True):
+                    if not fn:
+                        fn = lambda x: x
+
+                    new = []
+                    keys = []
+                    for x in self._data:
+                        key = fn(x)
+                        if all:
+                            if_v = key not in keys
+                        else:
+                            if_v = not keys or key != keys[-1]
+
+                        if if_v:
+                            new.append(x)
+                            keys.append(key)
+
+                    self._data = new
+                    return self
+
+                return fn_dedup
+
         if item == "fn_map":
 
             def fn_map(fn, unwrap=False):

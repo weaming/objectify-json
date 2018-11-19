@@ -37,17 +37,18 @@ Following methods of `ObjectifyJOSN` accept optional `unwrap` to unwrap `Objecti
 
 ### Dict
 
-* `fn_keys`: return keys as list
-* `fn_values`: return values as list
-* `fn_items`: return items as list, element has the type `tuple`, e.g. `("key", "value")`
-* `fn_include_keys`: filter dict, keep the `keys` you give
-* `fn_exclude_keys`: filter dict, remove the `keys` you give
-* `fn_filter_by_value`: filter dict, filter by the lambda you give, which accept the value of dict item
-* `fn_filter_by_kv`: filter dict, filter by the lambda you give, which accept `key` and `value` two variables
-* `fn_update`: update dict value, the lambda you give accept the origin value and return a new value
-* `fn_items_update`: update dict value, the lambda you give accept `key` and `value` two variables
+* `fn_keys`: Return keys as list.
+* `fn_values`: Return values as list.
+* `fn_items`: Return items as list. Element has the type `tuple`, e.g. `("key", "value")`.
+* `fn_include_keys`: Filter dict. Keep the `keys` you give.
+* `fn_exclude_keys`: Filter dict. Remove the `keys` you give.
+* `fn_filter_by_value`: Filter dict. Filter by the lambda you give, which accept the value of dict item.
+* `fn_filter_by_kv`: Filter dict. Filter by the lambda you give, which accept `key` and `value` two variables.
+* `fn_update`: Update dict value. The lambda you give accept the origin value and return a new value.
+* `fn_items_update`: Update dict value. The lambda you give accept `key` and `value` two variables and return a new value.
 
 
 ### List
 
-* `fn_sort`: sort the list in place, the lambda you give will be passed as `key` argument to the `sort` method of list
+* `fn_sort`: Sort the list in place. The lambda you give will be passed as `key` argument to the `sort` method of list.
+* `fn_dedup(fn=None, all=True)`: Dedup the elements in list. If `all` if `False`, the duplication will checked by comparing current value between last value, else will compare to all appeared before.
