@@ -1,20 +1,28 @@
 from functools import reduce
+from threading import Lock
 from .pure_eval import eval_with_context
 
 LIST = "LIST"
 DICT = "DICT"
 BASIC = "BASIC"
 
+STATE_LOCK = Lock()
+GLOBAL_STATE = {}
+
+
+def update_global_state(k, v):
+    with STATE_LOCK:
+        GLOBAL_STATE[k] = v
+
 
 class ObjectifyJSON:
-    def __init__(self, data, path=None, retry=False):
+    def __init__(self, data, path=None):
         """
         Wrapper on dict and list. You can access dict value by dot,
         e.g. self.a.b[3].c
         """
         self._data = data
         self._path = path or []
-        self._retry = retry
 
     @property
     def type(self):
@@ -36,7 +44,6 @@ class ObjectifyJSON:
 
         # get methods
         fn = self._get_fn(item)
-        print(item, fn, self._retry)
         if fn:
             return fn
 
@@ -54,34 +61,28 @@ class ObjectifyJSON:
         """
         if self.type == DICT:
             if item == "fn_keys":
-                return lambda: ObjectifyJSON(list(self._data.keys()), retry=self._retry)
+                return lambda: ObjectifyJSON(list(self._data.keys()))
             elif item == "fn_values":
-                return lambda: ObjectifyJSON(
-                    list(self._data.values()), retry=self._retry
-                )
+                return lambda: ObjectifyJSON(list(self._data.values()))
             elif item == "fn_items":
-                return lambda: ObjectifyJSON(
-                    list(self._data.items()), retry=self._retry
-                )
+                return lambda: ObjectifyJSON(list(self._data.items()))
 
             # other special methods
             elif item == "fn_include_keys":
                 return lambda keys: ObjectifyJSON(
-                    {k: v for k, v in self._data.items() if k in keys},
-                    retry=self._retry,
+                    {k: v for k, v in self._data.items() if k in keys}
                 )
             elif item == "fn_exclude_keys":
                 return lambda keys: ObjectifyJSON(
-                    {k: v for k, v in self._data.items() if k not in keys},
-                    retry=self._retry,
+                    {k: v for k, v in self._data.items() if k not in keys}
                 )
             elif item == "fn_filter_by_value":
                 return lambda fn: ObjectifyJSON(
-                    {k: v for k, v in self._data.items() if fn(v)}, retry=self._retry
+                    {k: v for k, v in self._data.items() if fn(v)}
                 )
             elif item == "fn_filter_by_kv":
                 return lambda fn: ObjectifyJSON(
-                    {k: v for k, v in self._data.items() if fn(k, v)}, retry=self._retry
+                    {k: v for k, v in self._data.items() if fn(k, v)}
                 )
             elif item == "fn_update":
 
@@ -149,7 +150,7 @@ class ObjectifyJSON:
             def fn_map(fn, unwrap=False):
                 rv = map(fn, self._data if unwrap else self)
                 rv = [_unwrap(x) for x in rv]
-                return ObjectifyJSON(rv, retry=self._retry)
+                return ObjectifyJSON(rv)
 
             return fn_map
 
@@ -158,9 +159,9 @@ class ObjectifyJSON:
             def fn_reduce(fn, initializer=None, unwrap=False):
                 data = self._data if unwrap else self
                 if initializer is None:
-                    return ObjectifyJSON(_unwrap(reduce(fn, data)), retry=self._retry)
+                    return ObjectifyJSON(_unwrap(reduce(fn, data)))
                 else:
-                    return ObjectifyJSON(_unwrap(reduce(fn, data, initializer)), retry=self._retry)
+                    return ObjectifyJSON(_unwrap(reduce(fn, data, initializer)))
 
             return fn_reduce
 
@@ -168,7 +169,7 @@ class ObjectifyJSON:
 
             def fn_lambda(fn, unwrap=False):
                 rv = fn(self._data if unwrap else self)
-                return ObjectifyJSON(_unwrap(rv), retry=self._retry)
+                return ObjectifyJSON(_unwrap(rv))
 
             return fn_lambda
 
@@ -177,12 +178,12 @@ class ObjectifyJSON:
             def fn_filter(fn, unwrap=False):
                 rv = filter(fn, self._data if unwrap else self)
                 rv = [_unwrap(x) for x in rv]
-                return ObjectifyJSON(rv, retry=self._retry)
+                return ObjectifyJSON(rv)
 
             return fn_filter
 
         else:
-            if not self._retry or item.startswith("fn_"):
+            if not GLOBAL_STATE["retry"] or item.startswith("fn_"):
                 return None
 
             # try to add `fn_` prefix
@@ -205,7 +206,6 @@ class ObjectifyJSON:
 
     def _inherit_meta(self, new, key):
         new._path = self._path + [key]
-        new._retry = self._retry
         return new
 
     def __repr__(self):
@@ -223,7 +223,7 @@ class ObjectifyJSON:
 
         rv = real_next()
         while rv:
-            yield ObjectifyJSON(rv, retry=self._retry)
+            yield ObjectifyJSON(rv)
             try:
                 rv = real_next()
             except StopIteration:
@@ -241,7 +241,8 @@ def get_data_by_path(data, path, retry=False, unwrap=True):
         o = data
     else:
         o = ObjectifyJSON(data)
-    o._retry = retry
+
+    update_global_state("retry", retry)
     rv = eval_with_context("o{}".format(path), context={"o": o})
     if unwrap:
         return rv._data
