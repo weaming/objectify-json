@@ -29,8 +29,7 @@ class ObjectifyJSON:
         if self.type == DICT:
             if item in self._data:
                 rv = ObjectifyJSON(self._data[item])
-                self._inherit_meta(rv, item)
-                return rv
+                return self._inherit_meta(rv, item)
         elif self.type == LIST:
             if item.startswith("i") and item[1:].isdigit():
                 return self[int(item[1:])]
@@ -47,8 +46,7 @@ class ObjectifyJSON:
 
         # return default
         rv = ObjectifyJSON(None)
-        self._inherit_meta(rv, item)
-        return rv
+        return self._inherit_meta(rv, item)
 
     def _get_fn(self, item):
         """
@@ -194,19 +192,21 @@ class ObjectifyJSON:
         if self.type == DICT:
             if key in self._data:
                 rv = ObjectifyJSON(self._data[key])
+                return self._inherit_meta(rv, key)
         elif self.type == LIST:
             try:
                 rv = ObjectifyJSON(self._data[key])
+                return self._inherit_meta(rv, key)
             except IndexError:
                 pass
-        else:
-            rv = ObjectifyJSON(None)
-        self._inherit_meta(rv, key)
-        return rv
+
+        rv = ObjectifyJSON(None)
+        return self._inherit_meta(rv, key)
 
     def _inherit_meta(self, new, key):
         new._path = self._path + [key]
         new._retry = self._retry
+        return new
 
     def __repr__(self):
         return "<{}: ({}) {}>".format(
