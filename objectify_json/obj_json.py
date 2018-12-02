@@ -183,7 +183,7 @@ class ObjectifyJSON:
             return fn_filter
 
         else:
-            if not GLOBAL_STATE["retry"] or item.startswith("fn_"):
+            if not GLOBAL_STATE.get("retry") or item.startswith("fn_"):
                 return None
 
             # try to add `fn_` prefix
@@ -218,6 +218,9 @@ class ObjectifyJSON:
 
     def __iter__(self):
         """ iter on the real data """
+        if self._data is None:
+            return ObjectifyJSON(None)
+
         iterator = self._data.__iter__()
         real_next = iterator.__next__
 
