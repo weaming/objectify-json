@@ -175,7 +175,7 @@ class ObjectifyJSON:
 
         elif item == "fn_filter":
 
-            def fn_filter(fn, unwrap=False):
+            def fn_filter(fn=None, unwrap=False):
                 rv = filter(fn, self._data if unwrap else self)
                 rv = [_unwrap(x) for x in rv]
                 return ObjectifyJSON(rv)
@@ -225,7 +225,7 @@ class ObjectifyJSON:
         real_next = iterator.__next__
 
         rv = real_next()
-        while rv:
+        while 1:
             yield ObjectifyJSON(rv)
             try:
                 rv = real_next()
