@@ -1,6 +1,7 @@
 from functools import reduce
 from threading import Lock
 from .pure_eval import eval_with_context
+import itertools
 
 LIST = "LIST"
 DICT = "DICT"
@@ -144,6 +145,14 @@ class ObjectifyJSON:
                     return self
 
                 return fn_dedup
+
+            elif item == "fn_chain":
+                def fn_chain(unwrap=False):
+                    flat = list(itertools.chain(*(x._data if unwrap else x for x in self)))
+                    new_data = ObjectifyJSON(flat)
+                    return _wrap(_unwrap(new_data))
+
+                return fn_chain
 
         if item == "fn_map":
 
