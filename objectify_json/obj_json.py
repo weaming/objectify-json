@@ -154,6 +154,20 @@ class ObjectifyJSON:
 
                 return fn_chain
 
+            elif item == "fn_intersection":
+                def fn_intersection(unwrap=False):
+                    intersection = None
+                    for x in self:
+                        x = [_unwrap(xx) for xx in x]
+                        if intersection is None:
+                            intersection = set(x)
+                        else:
+                            intersection = intersection & set(x)
+                    new_data = ObjectifyJSON(list(intersection))
+                    return _wrap(_unwrap(new_data))
+
+                return fn_intersection
+
         if item == "fn_map":
 
             def fn_map(fn, unwrap=False):

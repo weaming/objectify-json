@@ -42,7 +42,7 @@ def main():
         help="this program will do nothing to the data",
     )
     parser.add_argument(
-        "--wrapped",
+        "--raw",
         default=False,
         action="store_true",
         help="print the result ObjectifyJSON",
@@ -69,7 +69,7 @@ def main():
 
     try:
         with open(args.output, "w") as out:
-            if args.wrapped:
+            if args.raw:
                 out.write(repr(obj))
             else:
                 out.write(
