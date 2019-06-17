@@ -26,25 +26,25 @@ class ObjectifyJSON:
         self._path = path or []
 
     @property
-    def type(self):
+    def __type(self):
         if isinstance(self._data, (list, tuple)):
             return LIST
-        elif isinstance(self._data, dict):
+        if isinstance(self._data, dict):
             return DICT
-        elif isinstance(self._data, (int, float, str)) or self._data is None:
+        if isinstance(self._data, (int, float, str)) or self._data is None:
             return BASIC
 
     def __getattr__(self, item):
-        if self.type == DICT:
+        if self.__type == DICT:
             if item in self._data:
                 rv = ObjectifyJSON(self._data[item])
                 return self._inherit_meta(rv, item)
-        elif self.type == LIST:
+        elif self.__type == LIST:
             if item.startswith("i") and item[1:].isdigit():
                 return self[int(item[1:])]
 
         # get methods
-        fn = self._get_fn(item)
+        fn = self.__get_fn(item)
         if fn:
             return fn
 
@@ -56,11 +56,11 @@ class ObjectifyJSON:
         rv = ObjectifyJSON(None)
         return self._inherit_meta(rv, item)
 
-    def _get_fn(self, item):
+    def __get_fn(self, item):
         """
         :return: function or None
         """
-        if self.type == DICT:
+        if self.__type == DICT:
             if item == "fn_keys":
                 return lambda: ObjectifyJSON(list(self._data.keys()))
             elif item == "fn_values":
@@ -113,7 +113,7 @@ class ObjectifyJSON:
 
                 return fn_rename
 
-        if self.type == LIST:
+        if self.__type == LIST:
             if item == "fn_sort":
 
                 def fn_sort(fn):
@@ -147,14 +147,18 @@ class ObjectifyJSON:
                 return fn_dedup
 
             elif item == "fn_chain":
+
                 def fn_chain(unwrap=False):
-                    flat = list(itertools.chain(*(x._data if unwrap else x for x in self)))
+                    flat = list(
+                        itertools.chain(*(x._data if unwrap else x for x in self))
+                    )
                     new_data = ObjectifyJSON(flat)
                     return _wrap(_unwrap(new_data))
 
                 return fn_chain
 
             elif item == "fn_intersection":
+
                 def fn_intersection(unwrap=False):
                     intersection = None
                     for x in self:
@@ -210,14 +214,14 @@ class ObjectifyJSON:
                 return None
 
             # try to add `fn_` prefix
-            return self._get_fn(f"fn_{item}")
+            return self.__get_fn(f"fn_{item}")
 
     def __getitem__(self, key):
-        if self.type == DICT:
+        if self.__type == DICT:
             if key in self._data:
                 rv = ObjectifyJSON(self._data[key])
                 return self._inherit_meta(rv, key)
-        elif self.type == LIST:
+        elif self.__type == LIST:
             try:
                 rv = ObjectifyJSON(self._data[key])
                 return self._inherit_meta(rv, key)
